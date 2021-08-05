@@ -1,10 +1,9 @@
-package io.github.jordanmartin.datagenerator.server.controller;
+package io.github.jordanmartin.datagenerator.server.controller.provider;
 
 import io.github.jordanmartin.datagenerator.definition.DefinitionException;
 import io.github.jordanmartin.datagenerator.server.domain.ProviderConf;
 import io.github.jordanmartin.datagenerator.server.repository.ProviderRepository;
 import io.github.jordanmartin.datagenerator.server.utils.SleepUtil;
-import org.jboss.resteasy.spi.ApplicationException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -44,14 +43,14 @@ public class ProviderController {
             StringWriter stacktrace = new StringWriter();
             exception.printStackTrace(new PrintWriter(stacktrace));
             return Response.status(500)
-                    .entity(stacktrace)
+                    .entity(stacktrace.toString())
                     .build();
         }
     }
 
     @POST
     @Path("/")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
     public Response createProvider(@QueryParam("name") String name,
                                    @QueryParam("format") String format,
                                    @Context UriInfo uriInfo,
@@ -109,7 +108,7 @@ public class ProviderController {
 
     @POST
     @Path("/live")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
     public Response liveProvider(@QueryParam("format") String format,
                                  @QueryParam("count") int count,
                                  String template) {
