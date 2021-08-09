@@ -1,0 +1,38 @@
+.editor-container {
+}
+
+.half-pane {
+  display: inline-block;
+  width: 50%;
+
+  h2 {
+    display: inline-block;
+    margin-right: 20px;
+  }
+}
+
+app-definition-editor {
+  display: inline-block;
+  border: solid 1px #ccc;
+  width: calc(100% - 2px);
+}
+
+app-data-preview {
+  display: inline-block;
+  border: solid 1px #ccc;
+  border-left: none;
+  width: calc(100% - 1px);
+}
+
+app-template-editor {
+  display: inline-block;
+  width: calc(100% - 2px);
+  border: solid 1px #ccc;
+}
+
+@media (max-width: 900px) {
+  .half-pane {
+    width: 100%;
+  }
+}
+

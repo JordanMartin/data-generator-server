@@ -1,0 +1,23 @@
+<form ngNoForm method="POST" action="/api/provider/download">
+
+  <input type="hidden" name="definition" [value]="data.definition"/>
+  <input type="hidden" name="gzip" [value]="gzip"/>
+  <input type="hidden" name="output.pretty" [value]="data.pretty" />
+  <input type="hidden" name="output.template" [value]="data.template" />
+
+  <mat-form-field appearance="fill">
+    <mat-label>Number of objects</mat-label>
+    <input matInput name="count" type="number" [(ngModel)]="count"/>
+  </mat-form-field>
+
+  <mat-slide-toggle [checked]="gzip" (change)="gzip = $event.checked">
+    Gzip output
+  </mat-slide-toggle>
+
+  <div style="margin: 10px 0">
+    <button type="submit" mat-flat-button color="primary" (click)="download()" style="width: 100%">
+      <mat-icon>download</mat-icon>Download
+    </button>
+  </div>
+</form>
+

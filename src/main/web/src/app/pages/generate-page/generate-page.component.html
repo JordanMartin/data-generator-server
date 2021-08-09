@@ -1,0 +1,59 @@
+<h2>Output configuration</h2>
+<mat-form-field appearance="fill">
+  <mat-label>
+    <mat-icon>library_books</mat-icon>
+    Number of objects
+  </mat-label>
+  <input matInput #count type="number" [value]="defaults.count" (change)="updateCount(count.value)">
+</mat-form-field>
+
+<mat-form-field appearance="fill">
+  <mat-label>
+    <mat-icon>code</mat-icon>
+    Output format
+  </mat-label>
+  <mat-select #format [value]=defaults.format (selectionChange)="updateFormat(format.value)">
+    <mat-option [value]="f" *ngFor="let f of defaults.available_formats">{{f}}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<mat-slide-toggle [checked]="defaults.pretty" (change)="changeOutputPretty($event.checked)">
+  Pretty format
+</mat-slide-toggle>
+
+<div class="editor-container">
+  <div class="half-pane">
+    <h2>Definition</h2>
+    <app-definition-editor [initialValue]="defaults.initial_definition"
+                           (onChange)="updateDefinition($event)"></app-definition-editor>
+  </div>
+  <div class="half-pane">
+    <h2>Results</h2>
+    <mat-slide-toggle [checked]="auto_generate" (change)="changeAutoGenerate($event.checked)">
+      Auto generate
+    </mat-slide-toggle>
+
+    <button mat-button (click)="generate()">
+      <mat-icon>cached</mat-icon>
+      Generate
+    </button>
+
+    <button mat-button (click)="download()">
+      <mat-icon>download</mat-icon>
+      Download...
+    </button>
+    <app-data-preview [data]="generated"></app-data-preview>
+  </div>
+  <div class="spacer" style="clear: both;"></div>
+</div>
+
+<div class="editor-container" *ngIf="output_format == 'template'">
+  <h2>Template</h2>
+  <app-template-editor
+    [initialValue]="defaults.initial_template"
+    (onChange)="updateTemplate($event)"></app-template-editor>
+</div>
+
+<h2>Documentation</h2>
+<app-generator-doc></app-generator-doc>
+
