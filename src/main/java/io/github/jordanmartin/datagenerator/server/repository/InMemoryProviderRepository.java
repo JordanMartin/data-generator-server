@@ -14,8 +14,8 @@ public class InMemoryProviderRepository implements ProviderRepository {
     private final Map<String, ProviderConf> map = new HashMap<>();
 
     @Override
-    public ProviderConf createOrUpdate(String name, String template, String format) {
-        return map.put(name, ProviderConf.from(name, template, format));
+    public ProviderConf createOrUpdate(String name, String template, String format, Map<String, String> outputConfig) {
+        return map.put(name, ProviderConf.from(name, template, format, outputConfig));
     }
 
     @Override

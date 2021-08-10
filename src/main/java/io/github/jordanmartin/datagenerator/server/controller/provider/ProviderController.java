@@ -12,9 +12,13 @@ import javax.ws.rs.ext.Provider;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 @Path("/provider")
 @Produces(MediaType.APPLICATION_JSON)
@@ -54,8 +58,8 @@ public class ProviderController {
     public Response createProvider(@QueryParam("name") String name,
                                    @QueryParam("format") String format,
                                    @Context UriInfo uriInfo,
-                                   String template) throws URISyntaxException {
-        providerRepository.createOrUpdate(name, template, format);
+                                   String template) {
+        providerRepository.createOrUpdate(name, template, format, Map.of("pretty", "true"));
         URI providerPath = uriInfo.getAbsolutePathBuilder().path(name).build();
         return Response.created(providerPath).build();
     }
@@ -108,15 +112,58 @@ public class ProviderController {
 
     @POST
     @Path("/live")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response liveProvider(@QueryParam("format") String format,
-                                 @QueryParam("count") int count,
-                                 String template) {
-        ProviderConf providerConf = ProviderConf.from("live", template, format);
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response liveProvider(@FormParam("output.format") String format,
+                                 @FormParam("count") int count,
+                                 @FormParam("definition") String definition,
+                                 @FormParam("output.template") String outputTemplate,
+                                 @FormParam("output.pretty") String outputPretty) {
+
+        Map<String, String> outputConfig = new HashMap<>();
+        outputConfig.put("pretty", outputPretty);
+        outputConfig.put("template", outputTemplate);
+
+        ProviderConf providerConf = ProviderConf.from("live", definition, format, outputConfig);
         StreamingOutput streamingOutput = out -> providerConf.getOutput().writeMany(out, count);
         return Response
                 .ok(streamingOutput)
                 .header(HttpHeaders.CONTENT_TYPE, providerConf.getContentType())
+                .build();
+    }
+
+    @POST
+    @Path("/download")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response download(@FormParam("output.format") String format,
+                             @FormParam("count") int count,
+                             @FormParam("gzip") boolean gzip,
+                             @FormParam("definition") String definition,
+                             @FormParam("output.template") String outputTemplate,
+                             @FormParam("output.pretty") String outputPretty) {
+
+        Map<String, String> outputConfig = new HashMap<>();
+        outputConfig.put("pretty", outputPretty);
+        outputConfig.put("template", outputTemplate);
+
+        ProviderConf providerConf = ProviderConf.from("live", definition, format, outputConfig);
+        StreamingOutput streamingOutput = out -> {
+            if (gzip) {
+                out = new GZIPOutputStream(out);
+            }
+            providerConf.getOutput().writeMany(out, count);
+            out.close();
+        };
+        String date = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss").format(new Date());
+        String filename = count + "__" + date + "." + format;
+        String contentType = providerConf.getContentType();
+        if (gzip) {
+            filename += ".gz";
+            contentType = "application/gzip";
+        }
+        return Response
+                .ok(streamingOutput)
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename)
                 .build();
     }
 }

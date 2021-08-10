@@ -1,11 +1,13 @@
 package io.github.jordanmartin.datagenerator.server.domain;
 
 import io.github.jordanmartin.datagenerator.definition.YamlDefinitionParser;
-import io.github.jordanmartin.datagenerator.output.ObjectOuput;
+import io.github.jordanmartin.datagenerator.output.ObjectOutput;
 import io.github.jordanmartin.datagenerator.output.ObjectWriterOuput;
 import io.github.jordanmartin.datagenerator.provider.object.ObjectProvider;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Map;
 
 @Getter
 @Setter
@@ -17,31 +19,37 @@ public class ProviderConf {
     private ObjectWriterOuput output;
     private String contentType;
 
-    public static ProviderConf from(String name, String template, String format) {
+    public static ProviderConf from(String name, String template, String format, Map<String, String> outputConfig) {
         ProviderConf providerConf = new ProviderConf();
         YamlDefinitionParser parser = new YamlDefinitionParser(template);
         ObjectProvider provider = parser.parse();
-        ObjectOuput objectOutput = ObjectOuput.from(provider);
+        ObjectOutput output = ObjectOutput.from(provider);
+
+        boolean pretty = "true".equals(outputConfig.get("pretty"));
 
         switch (format) {
             case "yaml":
-                providerConf.setOutput(objectOutput.toYaml());
+                providerConf.setOutput(output.toYaml().setPretty(pretty));
                 providerConf.setContentType("text/yaml");
                 break;
             case "sql":
-                providerConf.setOutput(objectOutput.toSQL());
+                providerConf.setOutput(output.toSQL());
                 providerConf.setContentType("text/sql");
                 break;
             case "csv":
-                providerConf.setOutput(objectOutput.toCsv());
+                providerConf.setOutput(output.toCsv());
                 providerConf.setContentType("text/csv");
                 break;
             case "xml":
-                providerConf.setOutput(objectOutput.toXml());
+                providerConf.setOutput(output.toXml().setPretty(pretty));
                 providerConf.setContentType("text/xml");
                 break;
+            case "template":
+                providerConf.setOutput(output.toTemplate(outputConfig.get("template")));
+                providerConf.setContentType("text/plain");
+                break;
             default:
-                providerConf.setOutput(objectOutput.toJson());
+                providerConf.setOutput(output.toJson().setPretty(pretty));
                 providerConf.setContentType("application/json");
                 break;
         }
