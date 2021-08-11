@@ -48,7 +48,7 @@
         <dependency>
             <groupId>io.github.jordanmartin</groupId>
             <artifactId>data-generator</artifactId>
-            <version>1.3.0</version>
+            <version>1.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

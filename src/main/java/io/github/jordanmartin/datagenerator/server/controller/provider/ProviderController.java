@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-@Path("/provider")
+@Path("/api/provider")
 @Produces(MediaType.APPLICATION_JSON)
 public class ProviderController {
 
